@@ -26,5 +26,8 @@
     <Image Include="assets\mona.bmp">
       <Filter>Resource Files\assets</Filter>
     </Image>
+    <Image Include="assets\The-shape-of-Katokkon-pepper.png">
+      <Filter>Resource Files\assets</Filter>
+    </Image>
   </ItemGroup>
 </Project>
