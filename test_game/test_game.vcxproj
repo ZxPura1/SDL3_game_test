@@ -158,8 +158,12 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="assets\down.png" />
+    <Image Include="assets\left.png" />
     <Image Include="assets\mona.bmp" />
+    <Image Include="assets\right.png" />
     <Image Include="assets\The-shape-of-Katokkon-pepper.png" />
+    <Image Include="assets\up.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

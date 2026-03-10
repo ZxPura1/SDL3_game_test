@@ -51,17 +51,26 @@ public:
 		}
 		else
 		{
-			//Create texture from surface
-			if (mTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface); mTexture == nullptr)
+			//color key image
+			if (SDL_SetSurfaceColorKey(loadedSurface, true, SDL_MapSurfaceRGB(loadedSurface, 0xFF, 0xFF, 0xFF)) == false)
 			{
-				SDL_Log("Unable to create texture from loaded pixels! SDL error: %s\n", SDL_GetError());
+				SDL_Log("Unable to set the color key! SDL error: %s\n", SDL_GetError());
 			}
-			else
+			else 
 			{
-				//get image dimensions
-				mWidth = loadedSurface->w;
-				mHeight = loadedSurface->h;
+				//Create texture from surface
+				if (mTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface); mTexture == nullptr)
+				{
+					SDL_Log("Unable to create texture from loaded pixels! SDL error: %s\n", SDL_GetError());
+				}
+				else
+				{
+					//get image dimensions
+					mWidth = loadedSurface->w;
+					mHeight = loadedSurface->h;
+				}
 			}
+			
 			
 			//Clean up loaded surface
 			SDL_DestroySurface(loadedSurface);
@@ -118,6 +127,9 @@ private:
 
 //The PNG image we will rendering
 LTexture gPngTexture;
+
+//The directional images
+LTexture gUpTexture, gDownTexture, gLeftTexture, gRightTexture;
 
 /* Function Prototypes */
 ////Starts up SDL and creates window
@@ -187,9 +199,29 @@ bool loadMedia()
 	}*/
 
 	//load splash image
-	if (gPngTexture.loadFromFile("assets/mona.bmp") == false)
+	/*if (gPngTexture.loadFromFile("assets/mona.bmp") == false)
 	{
 		SDL_Log("Unable to load png image!\n");
+		success = false;
+	}*/
+	if (gUpTexture.loadFromFile("assets/up.png") == false)
+	{
+		SDL_Log("Unable to load up image!\n");
+		success = false;
+	}
+	if (gDownTexture.loadFromFile("assets/down.png") == false)
+	{
+		SDL_Log("Unable to load down image!\n");
+		success = false;
+	}
+	if (gLeftTexture.loadFromFile("assets/left.png") == false)	
+		{
+		SDL_Log("Unable to load left image!\n");
+		success = false;
+	}
+	if (gRightTexture.loadFromFile("assets/right.png") == false)
+	{
+		SDL_Log("Unable to load right image!\n");
 		success = false;
 	}
 
@@ -244,6 +276,12 @@ int main(int argc, char* args[])
 			SDL_Event e;
 			SDL_zero(e);
 
+			//The currently rendered texture
+			LTexture* currentTexture{ &gUpTexture };
+
+			//Background color defaults to white
+			SDL_Color bgColor{ 0xFF, 0xFF, 0xFF, 0xFF };
+
 			//The main loop 
 			while (quit == false)
 			{
@@ -256,24 +294,80 @@ int main(int argc, char* args[])
 						//end the main loop
 						quit = true;
 					}
-
-					//fill the surface white
-					//SDL_FillSurfaceRect(gScreenSurface, nullptr, SDL_MapSurfaceRGB(gScreenSurface, 0xFF, 0xFF, 0xFF));
-					
-					//fill the background white
-					SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-					SDL_RenderClear(gRenderer);
-
-					//render image on screen 
-					//SDL_BlitSurface(gHelloWorld, nullptr, gScreenSurface, nullptr);
-					gPngTexture.render(0.f, 0.f);
-
-					//update the surface
-					//SDL_UpdateWindowSurface(gWind);
-					
-					//update the screen
-					SDL_RenderPresent(gRenderer);
+					else if (e.type == SDL_EVENT_KEY_DOWN)
+					{
+						//Set texture 
+						if (e.key.key == SDLK_W)
+						{
+							currentTexture = &gUpTexture;
+						}
+						else if (e.key.key == SDLK_S)
+						{
+							currentTexture = &gDownTexture;
+						}
+						else if (e.key.key == SDLK_A)
+						{
+							currentTexture = &gLeftTexture;
+						}
+						else if (e.key.key == SDLK_D)
+						{
+							currentTexture = &gRightTexture;
+						}
+					}
 				}
+				// reset background color
+				bgColor.r = 0xFF;
+				bgColor.g = 0xFF;
+				bgColor.b = 0xFF;
+
+				//Set background color based on key state
+				const bool* keyStates = SDL_GetKeyboardState(nullptr);
+				if (keyStates[SDL_SCANCODE_W] == true)
+				{
+					//red
+					bgColor.r = 0xFF;
+					bgColor.g = 0x00;
+					bgColor.b = 0x00;
+				}
+				else if (keyStates[SDL_SCANCODE_S] == true)
+				{
+					//Green
+					bgColor.r = 0x00;
+					bgColor.g = 0xFF;
+					bgColor.b = 0x00;
+				}
+				else if (keyStates[SDL_SCANCODE_A] == true)
+				{
+					//Yellow
+					bgColor.r = 0xFF;
+					bgColor.g = 0xFF;
+					bgColor.b = 0x00;
+				}
+				else if (keyStates[SDL_SCANCODE_D] == true)
+				{
+					//Blue
+					bgColor.r = 0x00;
+					bgColor.g = 0x00;
+					bgColor.b = 0xFF;
+				}
+				else if (keyStates[SDL_SCANCODE_T] == true)
+				{
+					//
+					bgColor.r = 0x00;
+					bgColor.g = 0x00;
+					bgColor.b = 0x00;
+				}
+
+				//Fill the background
+				SDL_SetRenderDrawColor(gRenderer, bgColor.r, bgColor.g, bgColor.b, 0xFF);
+				SDL_RenderClear(gRenderer);
+
+				//Render image on screen
+				currentTexture->render((kScreenWidth - currentTexture->getWidth()) / 2.f, (kScreenHeight - currentTexture->getHeight()) / 2.f);
+
+				//Update screen
+				SDL_RenderPresent(gRenderer);
+
 			}
 			//Clean up (exit the loop)
 			close();
