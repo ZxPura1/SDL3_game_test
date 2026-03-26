@@ -41,8 +41,5 @@
     <Image Include="assets\up.png">
       <Filter>Resource Files\assets</Filter>
     </Image>
-    <Image Include="assets\dots.png">
-      <Filter>Resource Files\assets</Filter>
-    </Image>
   </ItemGroup>
 </Project>

@@ -20,8 +20,6 @@ SDL_Renderer* gRenderer{ nullptr };
 class LTexture
 {
 public:
-	//Symbolic constant for original image size
-	static constexpr float kOriginalSize{ -1.f };
 	//Initializes texture variables
 	/*
 	we set the values in the member initializer list as opposed to inside of the constructor itself. 
@@ -93,30 +91,13 @@ public:
 	}
 
 	//Draws texture
-	void render(float x, float y, SDL_FRect* clip = nullptr, float width = kOriginalSize, float height = kOriginalSize)
+	void render(float x, float y)
 	{
 		//Set texture position
 		SDL_FRect dstRect{ x,y, static_cast<float>(mWidth), static_cast<float>(mHeight) };
 
-		//Default to clip dimensions if clip is given
-		if (clip != nullptr)
-		{
-			dstRect.w = clip->w;
-			dstRect.h = clip->h;
-		}
-
-		//Resize if new dimensions are given
-		if (width > 0)
-		{
-			dstRect.w = width;
-		}
-		if (height > 0)
-		{
-			dstRect.h = height;
-		}
-
 		//Render texture
-		SDL_RenderTexture(gRenderer, mTexture, clip, &dstRect);
+		SDL_RenderTexture(gRenderer, mTexture, nullptr, &dstRect);
 	}
 
 	//gets texture attributes
@@ -150,9 +131,21 @@ LTexture gPngTexture;
 //The directional images
 LTexture gUpTexture, gDownTexture, gLeftTexture, gRightTexture;
 
-//The sprite sheet texture
-LTexture gspriteSheet;
+/* Function Prototypes */
+////Starts up SDL and creates window
+//bool init();
+//
+////Loads media
+//bool loadMedia();
+//
+////Frees media and shuts down SDL
+//void close();
 
+////The surface contained by the window
+//SDL_Surface* gScreenSurface(nullptr);
+//
+////The image we will show onto the screen
+//SDL_Surface* gHelloWorld{ nullptr };
 
 /* Function Implementations */
 bool init()
@@ -168,6 +161,17 @@ bool init()
 	}
 	else
 	{
+		//Create Window
+		//if( initialization ; condition check)
+		//if (gWind = SDL_CreateWindow("SDL 3 tutorial hehe", kScreenWidth, kScreenHeight, 0); gWind == nullptr)
+		//{
+		//	SDL_Log("Window could not be created! SDL error: %s\n", SDL_GetError());
+		//	success = false;
+		//}
+		//else {
+		//	//get window surface
+		//	gScreenSurface = SDL_GetWindowSurface(gWind);
+		//}
 
 		//Create window with renderer
 		if (SDL_CreateWindowAndRenderer("SDL3 Tutorial: Textures and EXtension Libraries", kScreenWidth, kScreenHeight, 0, &gWind, &gRenderer) == false)
@@ -183,12 +187,23 @@ bool loadMedia()
 	//file loading flag 
 	bool success{ true };
 
-	if (gspriteSheet.loadFromFile("assets/dots.png") == false)
+	//load splash image
+	/*td::string imagePath{ "assets/mona.bmp" };
+	if (gHelloWorld = SDL_LoadBMP(imagePath.c_str()); gHelloWorld == nullptr)
 	{
-		SDL_Log("Unable to load sprite sheet image!\n");
+		SDL_Log("Unable to load image %s! SDL Error: %s\n", imagePath.c_str(), SDL_GetError());
+		success = false; 
+		
+		The-shape-of-Katokkon-pepper.png
+
+	}*/
+
+	//load splash image
+	/*if (gPngTexture.loadFromFile("assets/mona.bmp") == false)
+	{
+		SDL_Log("Unable to load png image!\n");
 		success = false;
-	}
-	
+	}*/
 	if (gUpTexture.loadFromFile("assets/up.png") == false)
 	{
 		SDL_Log("Unable to load up image!\n");
@@ -216,7 +231,10 @@ bool loadMedia()
 void close()
 {
 	//Clean up the surface
-	gspriteSheet.destroy();
+
+	//SDL_DestroySurface(gHelloWorld);
+	//gHelloWorld = nullptr;
+	gPngTexture.destroy();
 
 	//Destroy window
 	SDL_DestroyRenderer(gRenderer);
@@ -260,7 +278,6 @@ int main(int argc, char* args[])
 
 			//The currently rendered texture
 			LTexture* currentTexture{ &gUpTexture };
-			//LTexture* gSpriteSheetTexture{ &gspriteSheet };
 
 			//Background color defaults to white
 			SDL_Color bgColor{ 0xFF, 0xFF, 0xFF, 0xFF };
@@ -345,37 +362,8 @@ int main(int argc, char* args[])
 				SDL_SetRenderDrawColor(gRenderer, bgColor.r, bgColor.g, bgColor.b, 0xFF);
 				SDL_RenderClear(gRenderer);
 
-				//Init sprite clip
-				constexpr float kSpriteSize = 100.f;
-				SDL_FRect spriteClip{ 0.f, 0.f, kSpriteSize, kSpriteSize };
-
-				//Init sprite size
-				SDL_FRect spriteSize{ 0.f, 0.f, kSpriteSize, kSpriteSize };
-
-				//use top left sprite
-				spriteClip.x = 0.f;
-				spriteClip.y = 0.f;
-
-				//Set sprite size to original size
-				spriteSize.w = kSpriteSize * 3.0f;
-				spriteSize.h = kSpriteSize * 3.0f;
-
-				//draw original sized sprite
-				gspriteSheet.render(kScreenWidth * 0.5f - spriteSize.w * 0.5f, kScreenHeight * 0.5f - spriteSize.h * 0.5f, &spriteClip, spriteSize.w, spriteSize.h);
-
-				//use top right sprite
-				spriteClip.x = kSpriteSize;
-				spriteClip.y = 0.f;
-
-				//set sprite size to half size
-				spriteSize.w = kSpriteSize * 0.5f;
-				spriteSize.h = kSpriteSize * 0.5f;
-
-				//draw half sized sprite
-				gspriteSheet.render(kScreenWidth - spriteSize.w, 0.f, &spriteClip, spriteSize.w, spriteSize.h);
-
 				//Render image on screen
-				//currentTexture->render((kScreenWidth - currentTexture->getWidth()) / 2.f, (kScreenHeight - currentTexture->getHeight()) / 2.f);
+				currentTexture->render((kScreenWidth - currentTexture->getWidth()) / 2.f, (kScreenHeight - currentTexture->getHeight()) / 2.f);
 
 				//Update screen
 				SDL_RenderPresent(gRenderer);

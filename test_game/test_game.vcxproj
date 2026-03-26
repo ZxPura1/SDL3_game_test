@@ -158,7 +158,6 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="assets\dots.png" />
     <Image Include="assets\down.png" />
     <Image Include="assets\left.png" />
     <Image Include="assets\mona.bmp" />
